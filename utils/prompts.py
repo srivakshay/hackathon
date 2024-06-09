@@ -2,7 +2,7 @@ from utils import extract_table_names, read_domains
 
 
 def get_spring_boot_prompt(spring_boot_version, java_version):
-    return "Convert PLSQL code to executable spring boot " + spring_boot_version + " and Java " + java_version + (
+    return "Generate executable spring boot " + spring_boot_version + " and Java " + java_version + (
         " having \n 1. Application with REST endpoints"
         "\n 2. Exception handling, "
         "\n 3. Unit test cases"
