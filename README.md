@@ -1,1 +1,1 @@
-# hackathon
+# Bedrock AI prompt
