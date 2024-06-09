@@ -1,0 +1,20 @@
+{
+  "domain_mappings": [
+    {
+      "domain": "customer",
+      "tables": ["customer_t","order_t"]
+    },
+    {
+      "domain": "product",
+      "tables": ["product_t"]
+    },
+    {
+      "domain": "approvers",
+      "tables": ["approval_request_approvers","approval_request_tasks","tasks_details"]
+    },
+    {
+      "domain": "request",
+      "tables": ["locations","usage","Indicators","labels"]
+    }
+  ]
+}

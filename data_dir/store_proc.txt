@@ -1,0 +1,126 @@
+CREATE PROCEDURE `product.SelectUsage4`(
+
+      IN p_ids MEDIUMTEXT
+    , IN p_locationIDs MEDIUMTEXT
+    , IN p_indicatorIDs MEDIUMTEXT
+    , IN p_fromDate date
+    , IN p_toDate date
+    , IN p_yearly tinyint(4)
+    , IN p_monthly tinyint(4)
+    , IN p_halfYear1 tinyint(4)
+    , IN p_halfYear2 tinyint(4)
+    , IN p_fourMonths1 tinyint(4)
+    , IN p_fourMonths2 tinyint(4)
+    , IN p_fourMonths3 tinyint(4)
+    , IN p_q1 tinyint(4)
+    , IN p_q2 tinyint(4)
+    , IN p_q3 tinyint(4)
+    , IN p_q4 tinyint(4)
+    , IN p_biMonthly1 tinyint(4)
+    , IN p_biMonthly2 tinyint(4)
+    , IN p_biMonthly3 tinyint(4)
+    , IN p_biMonthly4 tinyint(4)
+    , IN p_biMonthly5 tinyint(4)
+    , IN p_biMonthly6 tinyint(4)
+    , IN p_approvalStatus int(11)
+    , IN p_language nvarchar(10)
+)
+BEGIN
+    select
+        case when (select count(lbl.id) from `labels` as lbl where lbl.ObjectID = l.id and lbl.ObjectName = 'locations' and lbl.ColumnName = 'LocationName' and lbl.LanguageCode = p_language) > 0 then
+            (select content from `labels` as lbl where lbl.ObjectID = l.id and lbl.ObjectName = 'locations' and lbl.ColumnName = 'LocationName' and lbl.LanguageCode = p_language limit 1)
+        else
+            l.LocationName
+        end as LocationName
+        , l.ParentID as LocationParentID
+        , l.Active as LocationActive
+        , l.RegionID
+        , case when (select count(lbl.id) from `labels` as lbl where lbl.ObjectID = i.id and lbl.ObjectName = 'indicators' and lbl.ColumnName = 'IndicatorName' and lbl.LanguageCode = p_language) > 0 then
+            (select content from `labels` as lbl where lbl.ObjectID = i.id and lbl.ObjectName = 'indicators' and lbl.ColumnName = 'IndicatorName' and lbl.LanguageCode = p_language limit 1)
+        else
+            i.IndicatorName
+        end as IndicatorName
+        , i.ParentID as IndicatorParentID
+        , i.Unit
+        , i.DecimalPlaces
+        , i.Active as IndicatorActive
+        , i.IndicatorType
+        , u.*
+    from
+        `usage` as u
+        left join `locations` as l on u.LocationID = l.id
+        left join `Indicators` as i on u.IndicatorID = i.id
+    where
+        u.IsDeleted = 0
+        and (
+            (p_fromDate is null and p_toDate is null)
+            or
+            (
+                p_fromDate is not null and p_toDate is not null
+                and
+                DATE(CONCAT(convert(u.`Year`, char(4)), '-', convert(u.`Month`, char(2)), '-1')) between p_fromDate and p_toDate
+            )
+            or
+            (
+                p_fromDate is not null and p_toDate is not null
+                and
+                u.`Month` is null
+                and
+                u.`Year` between Year(p_fromDate) and Year(p_toDate)
+            )
+        )
+        and (p_yearly is null or (p_yearly is not null and p_yearly = 1 and u.`Month` is null) or (p_yearly is not null and p_yearly = 0 and u.`Month` is not null))
+        and (p_monthly is null or (p_monthly is not null and p_monthly = 1 and u.`Month` is not null))
+        and (p_ids is null or FIND_IN_SET(u.id, p_ids))
+        and (p_locationIDs is null or FIND_IN_SET(u.LocationID, p_locationIDs))
+        and (p_indicatorIDs is null or FIND_IN_SET(u.IndicatorID, p_indicatorIDs))
+        and
+        (
+
+               (p_halfYear1 is null or u.HalfYear1 = p_halfYear1)
+            or (p_halfYear2 is null or u.HalfYear2 = p_halfYear2)
+        )
+        and
+        (
+               (p_fourMonths1 is null or u.FourMonths1 = p_fourMonths1)
+            or (p_fourMonths2 is null or u.FourMonths2 = p_fourMonths2)
+            or (p_fourMonths3 is null or u.FourMonths3 = p_fourMonths3)
+        )
+        and
+        (
+               (p_q1 is null or u.Q1 = p_q1)
+            or (p_q2 is null or u.Q2 = p_q2)
+            or (p_q3 is null or u.Q3 = p_q3)
+            or (p_q4 is null or u.Q4 = p_q4)
+        )
+        and
+        (
+               (p_biMonthly1 is null or u.BiMonthly1 = p_biMonthly1)
+            or (p_biMonthly2 is null or u.BiMonthly2 = p_biMonthly2)
+            or (p_biMonthly3 is null or u.BiMonthly3 = p_biMonthly3)
+            or (p_biMonthly4 is null or u.BiMonthly4 = p_biMonthly4)
+            or (p_biMonthly5 is null or u.BiMonthly5 = p_biMonthly5)
+            or (p_biMonthly6 is null or u.BiMonthly6 = p_biMonthly6)
+        )
+        and (
+                p_approvalStatus is null
+                or
+                (
+                    select ara.ApprovalStatus
+                    from `tasks_details` as t
+                    inner join `approval_request_tasks` as art on t.TaskID = art.TaskID
+                    inner join `approval_request_approvers` as ara on art.ApprovalRequestID = ara.ApprovalRequestID
+                    where
+                        t.IsDeleted = 0
+                        and
+                        t.ObjectID = u.id
+                        and t.ObjectType = 'Usage'
+                    order by
+                        ara.ModifiedDate desc limit 1
+                ) = p_approvalStatus
+            )
+    order by
+        i.IndicatorName, l.LocationName
+;
+
+END
