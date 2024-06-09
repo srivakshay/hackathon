@@ -39,7 +39,7 @@ def main():
         # reading from db prompt
         prompt = prompts.get_spring_boot_prompt("3.3.0",
                                                 "17") + "\n for Stored Procedure\n" + extract_table_names.get_body_mysql(
-            "assignment_week3", "sample1") + " \n" + prompts.get_domain_prompt_from_file("../data_dir/store_proc.txt")
+            "assignment_week3", "sample1") + " \n" + prompts.get_domain_prompt_from_mysql("assignment_week3","sample1")
         print(prompt)
         body = json.dumps({
             "inputText": prompt,

@@ -1,13 +1,13 @@
-
 from utils import extract_table_names, read_domains
 
 
 def get_spring_boot_prompt(spring_boot_version, java_version):
-    return "Generate spring boot " + spring_boot_version + " and Java " + java_version + (
-        "having \n 1. Application with REST endpoints"
+    return "Convert PLSQL code to executable spring boot " + spring_boot_version + " and Java " + java_version + (
+        " having \n 1. Application with REST endpoints"
         "\n 2. Exception handling, "
         "\n 3. Unit test cases"
-        "\n 4. pom.xml")
+        "\n 4. Code should have inbuilt sql queries"
+        "\n 5. pom.xml")
 
 
 def get_domain_prompt_from_mysql(schema, procname):
@@ -37,5 +37,3 @@ def __generate_prompt(domain_mappings, tables):
         if len(domain_tables_copy) > 0:
             prompt += "and "
     return prompt
-
-
