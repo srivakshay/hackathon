@@ -9,7 +9,7 @@ def get_spring_boot_prompt(spring_boot_version, java_version):
         "\n 4. Code should have inbuilt sql queries"
         "\n 5. Open API Specification YAML file"
         "\n 6. pom.xml"
-        "\n 7. all the files should start with //..store_proc_start and end with //store_proc_end\n")
+        "\n 7. all the files should start with //")
 
 
 def get_domain_prompt_from_mysql(schema, procname):
@@ -33,10 +33,12 @@ def __generate_prompt(domain_mappings, tables):
             domain_tables[domain_mappings[table]].append(table)
     prompt = ""
     domain_tables_copy = domain_tables.copy()
-    count = 8
     for domain in domain_tables:
-        prompt += str(count) + ". Generate code with " + ",".join(
-            domain_tables[domain]) + " as one spring boot application \n"
+        prompt += "Generate code with " + ",".join(
+            domain_tables[domain]) + " as one spring boot application "
         domain_tables_copy.pop(domain)
-        count += 1
+        if len(domain_tables_copy) > 0:
+            prompt += "and \n"
+
+    prompt += "\n Generate code for all the mentioned spring boot applications and not suggestions"
     return prompt

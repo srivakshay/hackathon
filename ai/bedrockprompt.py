@@ -3,6 +3,7 @@ import json
 from botocore.client import logger
 from botocore.exceptions import ClientError
 
+from ai import bedrock_claude_langchain
 from utils import prompts, file_reader, extract_table_names
 
 
@@ -29,18 +30,16 @@ def generate_text(model_id, body):
 
 
 def main():
+    """print(bedrock_claude_langchain.query_code("Generate business documentation for ","../data_dir/store_proc.txt"))"""
     try:
         model_id = 'anthropic.claude-3-sonnet-20240229-v1:0'
         print("Sending prompt please wait ...")
         # reading from file prompt
-        """prompt = prompts.get_spring_boot_prompt("3.3.0", "17") + "\n for Stored Procedure\n" + file_reader.get_data_from_file(
-            "../data_dir/store_proc.txt") + " \n" + prompts.get_domain_prompt_from_file("../data_dir/store_proc.txt")"""
-
         # reading from db prompt
         prompt = prompts.get_spring_boot_prompt("3.3.0",
-                                                "17") + prompts.get_domain_prompt_from_file(
-            "../data_dir/store_proc.txt") + "For following Stored Procedure\n" + extract_table_names.get_file_content(
-            "../data_dir/store_proc.txt") + " \n"
+                                                "17") + "For following Stored Procedure\n" + extract_table_names.get_file_content(
+            "../data_dir/store_proc.txt") + " \n" + prompts.get_domain_prompt_from_file(
+            "../data_dir/store_proc.txt")
         print(prompt)
         body = json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
@@ -55,7 +54,6 @@ def main():
         })
 
         response_body = generate_text(model_id, body)
-        #print(f"Input token count: {response_body['inputTextTokenCount']}")
 
         print(response_body["content"][0]["text"])
 

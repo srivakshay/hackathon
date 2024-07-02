@@ -1,18 +1,17 @@
 import boto3
-from langchain_community.llms import Bedrock
-from langchain_community.chat_models import BedrockChat
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_aws import ChatBedrock
 
-model_id = "anthropic.claude-3-haiku-20240307-v1:0"
-client = boto3.client("bedrock-runtime", region_name="us-east-1")
+from utils import file_reader
 
-llm = BedrockChat(
-    client=client, model_id=model_id
-)
 
-response = llm.invoke("hi")
+def query_code(prompt, filename):
+    model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
+    client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
-print(response.content)
+    llm = ChatBedrock(
+        client=client, model_id=model_id
+    )
+
+    response = llm.invoke(prompt + file_reader.get_data_from_file(filename))
+
+    return response.content
