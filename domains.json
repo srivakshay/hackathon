@@ -5,6 +5,14 @@
       "tables": ["customer_t","order_t"]
     },
     {
+      "domain": "account",
+      "tables": ["bank_account"]
+    },
+    {
+      "domain": "transactions",
+      "tables": ["transactions"]
+    },
+    {
       "domain": "product",
       "tables": ["product_t"]
     },

@@ -30,7 +30,7 @@ def generate_text(model_id, body):
 
 def main():
     try:
-        model_id = 'amazon.titan-text-premier-v1:0'
+        model_id = 'anthropic.claude-3-sonnet-20240229-v1:0'
         print("Sending prompt please wait ...")
         # reading from file prompt
         """prompt = prompts.get_spring_boot_prompt("3.3.0", "17") + "\n for Stored Procedure\n" + file_reader.get_data_from_file(
@@ -38,25 +38,26 @@ def main():
 
         # reading from db prompt
         prompt = prompts.get_spring_boot_prompt("3.3.0",
-                                                "17") + "\n for Stored Procedure\n" + extract_table_names.get_body_mysql(
-            "assignment_week3", "sample1") + " \n" + prompts.get_domain_prompt_from_mysql("assignment_week3","sample1")
+                                                "17") + prompts.get_domain_prompt_from_file(
+            "../data_dir/store_proc.txt") + "For following Stored Procedure\n" + extract_table_names.get_file_content(
+            "../data_dir/store_proc.txt") + " \n"
         print(prompt)
         body = json.dumps({
-            "inputText": prompt,
-            "textGenerationConfig": {
-                "maxTokenCount": 3072,
-                "stopSequences": [],
-                "temperature": 0.5,
-                "topP": 0.9
-            }
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1000000,
+            "temperature": 0.5,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": prompt}],
+                }
+            ],
         })
 
         response_body = generate_text(model_id, body)
-        print(f"Input token count: {response_body['inputTextTokenCount']}")
+        #print(f"Input token count: {response_body['inputTextTokenCount']}")
 
-        for result in response_body['results']:
-            print(f"Output text: {result['outputText']}")
-            print(f"Completion reason: {result['completionReason']}")
+        print(response_body["content"][0]["text"])
 
     except ClientError as err:
         message = err.response["Error"]["Message"]

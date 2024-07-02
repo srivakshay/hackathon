@@ -24,6 +24,10 @@ def get_table_names_from_file(filepath):
     return list(__extract_table_names(proc_code))
 
 
+def get_file_content(filepath):
+    return file_reader.get_data_from_file(filepath)
+
+
 def get_from_mysql(schema, procname):
     # MySQL connection details
     config = {
