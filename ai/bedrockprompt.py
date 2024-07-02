@@ -29,7 +29,7 @@ def generate_text(model_id, body):
     return response_body
 
 
-def main():
+def covert_to_spring_boot(filename):
     """print(bedrock_claude_langchain.query_code("Generate business documentation for ","../data_dir/store_proc.txt"))"""
     try:
         model_id = 'anthropic.claude-3-sonnet-20240229-v1:0'
@@ -38,9 +38,9 @@ def main():
         # reading from db prompt
         prompt = prompts.get_spring_boot_prompt("3.3.0",
                                                 "17") + "For following Stored Procedure\n" + extract_table_names.get_file_content(
-            "../data_dir/store_proc.txt") + " \n" + prompts.get_domain_prompt_from_file(
-            "../data_dir/store_proc.txt")
-        print(prompt)
+            filename) + " \n" + prompts.get_domain_prompt_from_file(
+            filename)
+        #return prompt
         body = json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
             "max_tokens": 1000000,
@@ -54,8 +54,8 @@ def main():
         })
 
         response_body = generate_text(model_id, body)
-
         print(response_body["content"][0]["text"])
+        return response_body["content"][0]["text"]
 
     except ClientError as err:
         message = err.response["Error"]["Message"]
@@ -64,5 +64,3 @@ def main():
               format(message))
 
 
-if __name__ == "__main__":
-    main()

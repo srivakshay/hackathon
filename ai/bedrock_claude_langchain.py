@@ -11,7 +11,7 @@ def query_code(prompt, filename):
     llm = ChatBedrock(
         client=client, model_id=model_id
     )
-
+    # response = prompt + file_reader.get_data_from_file(filename)
     response = llm.invoke(prompt + file_reader.get_data_from_file(filename))
-
-    return response.content
+    print(response.content)
+    return response
