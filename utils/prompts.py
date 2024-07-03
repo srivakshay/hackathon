@@ -57,7 +57,14 @@ def __generate_ui_prompt(domain_mappings, tables):
             domain_tables[domain_mappings[table]] = [table]
         else:
             domain_tables[domain_mappings[table]].append(table)
-    prompt = ""
+    prompt = "There are " + str(len(domain_tables)) + " domain(s)" + " in this plsql code "
+    domain_names = domain_tables.copy();
+    for domain in domain_tables:
+        domain_names.pop(domain)
+        prompt += domain
+        if len(domain_names) > 0:
+            prompt += " and "
+    prompt += ". "
     domain_tables_copy = domain_tables.copy()
     for domain in domain_tables:
         prompt += "Generating code with table(s) " + ",".join(

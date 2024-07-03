@@ -40,8 +40,8 @@ def covert_to_spring_boot(filename):
                                                 "17") + "For following Stored Procedure\n" + extract_table_names.get_file_content(
             filename) + " \n" + prompts.get_domain_prompt_from_file(
             filename)
-        return prompt
-        """body = json.dumps({
+        #return prompt
+        body = json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
             "max_tokens": 1000000,
             "temperature": 0.5,
@@ -55,7 +55,7 @@ def covert_to_spring_boot(filename):
 
         response_body = generate_text(model_id, body)
         print(response_body["content"][0]["text"])
-        return response_body["content"][0]["text"]"""
+        return response_body["content"][0]["text"]
 
     except ClientError as err:
         message = err.response["Error"]["Message"]
