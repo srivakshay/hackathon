@@ -1,4 +1,7 @@
-from flask import Flask, request, jsonify
+import io
+import zipfile
+
+from flask import Flask, request, jsonify, safe_join, send_file, abort
 import os
 
 from ai import bedrockprompt, bedrock_claude_langchain
@@ -55,6 +58,33 @@ def ask_any_thing():
     return jsonify(
         {"message": bedrock_claude_langchain.query_code(request.args.get("query"),
                                                         "../data_dir/upload")}), 200
+
+
+@app.route('/download', methods=['GET'])
+def download_file():
+    try:
+        # Directory containing files to be zipped
+        directory = os.path.join(app.root_path, '../download')
+
+        # Check if the directory exists
+        if not os.path.exists(directory):
+            abort(404)  # Return a 404 error if the directory is not found
+
+        # Create a zip file in memory
+        memory_file = io.BytesIO()
+        with zipfile.ZipFile(memory_file, 'w') as zf:
+            for foldername, subfolders, filenames in os.walk(directory):
+                for filename in filenames:
+                    file_path = os.path.join(foldername, filename)
+                    arcname = os.path.relpath(file_path, directory)
+                    zf.write(file_path, arcname)
+
+        memory_file.seek(0)
+
+        return send_file(memory_file, attachment_filename='files.zip', as_attachment=True)
+    except Exception as e:
+        print(f"Error: {e}")
+        abort(500)  # Return a 500 error if something goes wrong
 
 
 if __name__ == '__main__':

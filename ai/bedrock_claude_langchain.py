@@ -14,4 +14,4 @@ def query_code(prompt, filename):
     # response = prompt + file_reader.get_data_from_file(filename)
     response = llm.invoke(prompt + file_reader.get_data_from_file(filename))
     print(response.content)
-    return response
+    return response.content
