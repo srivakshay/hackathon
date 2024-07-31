@@ -1,14 +1,61 @@
 def reward_function(params):
-    # Extract relevant parameters
+    # Read input parameters
     track_width = params['track_width']
     distance_from_center = params['distance_from_center']
+    steering_angle = abs(params['steering_angle'])
+    speed = params['speed']
+    progress = params['progress']
+    steps = params['steps']
+    all_wheels_on_track = params['all_wheels_on_track']
+    heading = params['heading']
+    waypoints = params['waypoints']
+    closest_waypoints = params['closest_waypoints']
 
-    # Reward for staying closer to center
-    if distance_from_center <= track_width * 0.1:
-        reward = 1.0
-    elif distance_from_center <= track_width * 0.25:
-        reward = 0.5
+    # Initialize reward
+    reward = 1.0
+
+    # Calculate markers that are at varying distances from the center line
+    marker_1 = 0.1 * track_width
+    marker_2 = 0.25 * track_width
+    marker_3 = 0.5 * track_width
+
+    # Give higher reward if the car is closer to center line and vice versa
+    if distance_from_center <= marker_1:
+        reward += 1.0
+    elif distance_from_center <= marker_2:
+        reward += 0.5
+    elif distance_from_center <= marker_3:
+        reward += 0.1
     else:
-        reward = 0.1
+        reward = 1e-3  # likely crashed/ close to off track
+
+    # Penalize if the car goes off track
+    if not all_wheels_on_track:
+        reward = 1e-3
+
+    # Reward for progress
+    reward += progress / steps
+
+    # Reward for maintaining optimal speed
+    SPEED_THRESHOLD = 2.0  # m/s
+    if speed > SPEED_THRESHOLD:
+        reward += 0.5
+    else:
+        reward += speed / SPEED_THRESHOLD
+
+    # Penalize sharp turns
+    ABS_STEERING_THRESHOLD = 15.0  # degrees
+    if steering_angle > ABS_STEERING_THRESHOLD:
+        reward *= 0.8
+
+    # Reward for heading alignment with track direction
+    next_waypoint = waypoints[closest_waypoints[1]]
+    track_direction = math.atan2(next_waypoint[1] - params['y'], next_waypoint[0] - params['x'])
+    heading_difference = abs(track_direction - heading)
+    if heading_difference > math.pi:
+        heading_difference = 2 * math.pi - heading_difference
+    heading_threshold = math.radians(10)
+    if heading_difference < heading_threshold:
+        reward += 0.5
 
     return float(reward)
