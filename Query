@@ -1,0 +1,40 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class SQLQueryType {
+
+    public static String determineQueryType(String query) {
+        // Trim and convert query to uppercase for uniformity
+        query = query.trim().toUpperCase();
+
+        // Define regex patterns for different query types
+        String selectPattern = "^SELECT\\b";
+        String insertPattern = "^INSERT\\b";
+        String updatePattern = "^UPDATE\\b";
+        String deletePattern = "^DELETE\\b";
+
+        if (query.matches(selectPattern)) {
+            return "Data Read (SELECT)";
+        } else if (query.matches(insertPattern)) {
+            return "DML (INSERT)";
+        } else if (query.matches(updatePattern)) {
+            return "DML (UPDATE)";
+        } else if (query.matches(deletePattern)) {
+            return "DML (DELETE)";
+        } else {
+            return "Unknown Query Type";
+        }
+    }
+
+    public static void main(String[] args) {
+        String query1 = "SELECT a.name, b.age FROM users a JOIN orders b ON a.id = b.user_id WHERE a.status = 'active';";
+        String query2 = "INSERT INTO users (name, age) VALUES ('Alice', 30);";
+        String query3 = "UPDATE users SET age = 31 WHERE name = 'Alice';";
+        String query4 = "DELETE FROM users WHERE name = 'Alice';";
+
+        System.out.println("Query 1 is: " + determineQueryType(query1));
+        System.out.println("Query 2 is: " + determineQueryType(query2));
+        System.out.println("Query 3 is: " + determineQueryType(query3));
+        System.out.println("Query 4 is: " + determineQueryType(query4));
+    }
+}
