@@ -8,12 +8,12 @@ import java.util.regex.Pattern;
 public class TableNameExtractor {
 
     public static List<String> extractTableNames(String query) {
-        // Define regex patterns for different SQL statements
+        // Define regex patterns for different SQL statements using explicit whitespace characters
         String[] patterns = {
-            "\\bFROM\\s+([^\s,;]+)",  // For SELECT and DELETE queries
-            "\\bJOIN\\s+([^\s,;]+)",  // For JOINs in SELECT queries
-            "\\bINTO\\s+([^\s,;]+)",  // For INSERT queries
-            "\\bUPDATE\\s+([^\s,;]+)" // For UPDATE queries
+            "\\bFROM[ \\t\\r\\n\\f]+([^,;\\s]+)",  // For SELECT and DELETE queries
+            "\\bJOIN[ \\t\\r\\n\\f]+([^,;\\s]+)",  // For JOINs in SELECT queries
+            "\\bINTO[ \\t\\r\\n\\f]+([^,;\\s]+)",  // For INSERT queries
+            "\\bUPDATE[ \\t\\r\\n\\f]+([^,;\\s]+)" // For UPDATE queries
         };
 
         Set<String> tableNames = new HashSet<>();
