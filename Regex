@@ -1,0 +1,40 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class TableNameExtractor {
+
+    public static List<String> extractTableNames(String query) {
+        // Define regex patterns for different SQL statements
+        String[] patterns = {
+            "\\bFROM\\s+([^\s,;]+)",  // For SELECT and DELETE queries
+            "\\bJOIN\\s+([^\s,;]+)",  // For JOINs in SELECT queries
+            "\\bINTO\\s+([^\s,;]+)",  // For INSERT queries
+            "\\bUPDATE\\s+([^\s,;]+)" // For UPDATE queries
+        };
+
+        Set<String> tableNames = new HashSet<>();
+
+        for (String pattern : patterns) {
+            Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(query);
+            while (matcher.find()) {
+                tableNames.add(matcher.group(1));
+            }
+        }
+
+        return new ArrayList<>(tableNames);
+    }
+
+    public static void main(String[] args) {
+        String query = "SELECT a.name, b.age FROM users a JOIN orders b ON a.id = b.user_id WHERE a.status = 'active';";
+        List<String> tables = extractTableNames(query);
+
+        System.out.println("Extracted table names:");
+        for (String table : tables) {
+            System.out.println(table);
+        }
+    }
+}
